@@ -28,6 +28,7 @@ import org.spyc.bartabs.app.hal.Transaction;
 import org.spyc.bartabs.app.hal.User;
 
 import java.util.Collections;
+import java.util.Date;
 
 public class RestClientService extends IntentService {
 
@@ -37,7 +38,8 @@ public class RestClientService extends IntentService {
     public static final int LOAD_ITEMS_REQUEST_CODE = 2;
     public static final int LOAD_TRANSACTIONS_REQUEST_CODE = 3;
     public static final int SUBMIT_TRANSACTION_REQUEST_CODE = 4;
-    public static final int SUBMIT_PAYMENT_REQUEST_CODE = 5;
+    public static final int CANCEL_TRANSACTION_REQUEST_CODE = 5;
+    public static final int SUBMIT_PAYMENT_REQUEST_CODE = 6;
 
     // Incoming extra parameters
     public static final String PENDING_RESULT_EXTRA = "pending_result";
@@ -109,6 +111,10 @@ public class RestClientService extends IntentService {
                     case SUBMIT_TRANSACTION_REQUEST_CODE:
                         Transaction transaction = intent.getParcelableExtra(TRANSACTION_EXTRA);
                         success = submitTransaction(transaction, mRestTemplate, requestHeaders, result);
+                        break;
+                    case CANCEL_TRANSACTION_REQUEST_CODE:
+                        Transaction transaction2 = intent.getParcelableExtra(TRANSACTION_EXTRA);
+                        success = cancelTransaction(transaction2, mRestTemplate, requestHeaders, result);
                         break;
                     case SUBMIT_PAYMENT_REQUEST_CODE:
                         Payment payment = intent.getParcelableExtra(TRANSACTION_EXTRA);
@@ -194,8 +200,10 @@ public class RestClientService extends IntentService {
 
     private boolean cancelTransaction(Transaction transaction, RestTemplate restTemplate, HttpHeaders requestHeaders, Intent result) {
         // Make the HTTP PATCH request
+        transaction.setStatus(Transaction.Status.CANCELLED);
+        transaction.setCloseDate(new Date());
         HttpEntity<Transaction> requestEntity = new HttpEntity<Transaction>(transaction, requestHeaders);
-        ResponseEntity<Transaction> responseEntity = restTemplate.exchange(transaction.get_links().self.toString(), HttpMethod.PATCH, requestEntity, Transaction.class);
+        ResponseEntity<Transaction> responseEntity = restTemplate.exchange(transaction.get_links().self.href, HttpMethod.PATCH, requestEntity, Transaction.class);
         return responseEntity.getStatusCode()== HttpStatus.OK;
     }
     public static void showAlertDialog(Context ctx, String error_msg) {

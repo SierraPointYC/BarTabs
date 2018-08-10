@@ -1,5 +1,7 @@
 package org.spyc.bartabs.app;
 
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.app.Activity;
@@ -14,8 +16,15 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.spyc.bartabs.app.hal.Item;
+import org.spyc.bartabs.app.hal.ItemType;
 import org.spyc.bartabs.app.hal.Transaction;
 import org.spyc.bartabs.app.hal.User;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class HistoryActivity extends Activity {
 
@@ -72,8 +81,34 @@ public class HistoryActivity extends Activity {
     private void revertTransaction() {
         int position = mAdapter.getSelectedPosition();
         if (position >= 0) {
-            Toast.makeText(this, "Revert  row: " + mTransactions[position], Toast.LENGTH_LONG).show();
+            Transaction transaction =  mTransactions[position];
+            Toast.makeText(this, "Revert  row: " + transaction, Toast.LENGTH_LONG).show();
+            PendingIntent pendingResult = createPendingResult(
+                    RestClientService.CANCEL_TRANSACTION_REQUEST_CODE, new Intent(), 0);
+            Intent intent = new Intent(getApplicationContext(), RestClientService.class);
+            intent.putExtra(RestClientService.REQUEST_CODE_EXTRA, RestClientService.CANCEL_TRANSACTION_REQUEST_CODE);
+            intent.putExtra(RestClientService.TRANSACTION_EXTRA, transaction);
+            intent.putExtra(RestClientService.PENDING_RESULT_EXTRA, pendingResult);
+            startService(intent);
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == RestClientService.CANCEL_TRANSACTION_REQUEST_CODE) {
+            switch (resultCode) {
+                case RestClientService.INVALID_URL_CODE:
+                    RestClientService.showAlertDialog(this, "Invalid service URL for reverting transaction.");
+                    break;
+                case RestClientService.ERROR_CODE:
+                    RestClientService.showAlertDialog(this, "Server error reverting transaction.");
+                    break;
+                case RestClientService.RESULT_OK_CODE:
+                    finish();
+                    break;
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     public static class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.ViewHolder> {

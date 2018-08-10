@@ -35,160 +35,28 @@
             android:layout_height="match_parent">
 
             <Button
-                android:id="@+id/sodaButton"
+                android:id="@+id/moreButton"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="2"
-                android:contentDescription="Buy soda"
-                android:text="Soda"
+                android:contentDescription="More items to add ..."
+                android:text="More ..."
                 android:textAppearance="@style/TextAppearance.AppCompat.Button"
                 android:textSize="24sp" />
 
             <TextView
-                android:id="@+id/sodaText"
+                android:id="@+id/moreText"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
-                android:text="0 x $1"
                 android:textAlignment="textEnd"
                 android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
 
             <TextView
-                android:id="@+id/sodaTotal"
+                android:id="@+id/moreTotal"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="$0"
-                android:textAlignment="textEnd"
-                android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
-        </TableRow>
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <Button
-                android:id="@+id/juiceButton"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="2"
-                android:contentDescription="Buy juice"
-                android:text="Juice"
-                android:textAppearance="@style/TextAppearance.AppCompat.Button"
-                android:textSize="24sp" />
-
-            <TextView
-                android:id="@+id/juiceText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:text="0 x $2"
-                android:textAlignment="textEnd"
-                android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
-
-            <TextView
-                android:id="@+id/juiceTotal"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="$0"
-                android:textAlignment="textEnd"
-                android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
-        </TableRow>
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <Button
-                android:id="@+id/beerButton"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="2"
-                android:contentDescription="Buy beer"
-                android:text="Beer"
-                android:textAppearance="@style/TextAppearance.AppCompat.Button"
-                android:textSize="24sp" />
-
-            <TextView
-                android:id="@+id/beerText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:text="0 x $3"
-                android:textAlignment="textEnd"
-                android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
-
-            <TextView
-                android:id="@+id/beerTotal"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="$0"
-                android:textAlignment="textEnd"
-                android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
-        </TableRow>
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <Button
-                android:id="@+id/corkageButton"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="2"
-                android:contentDescription="Buy Corkage"
-                android:text="Corkage"
-                android:textAppearance="@style/TextAppearance.AppCompat.Button"
-                android:textSize="24sp" />
-
-            <TextView
-                android:id="@+id/corkageText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:text="0 x $5"
-                android:textAlignment="textEnd"
-                android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
-
-            <TextView
-                android:id="@+id/corkageTotal"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="$0"
-                android:textAlignment="textEnd"
-                android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
-        </TableRow>
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <Button
-                android:id="@+id/mealButton"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="2"
-                android:contentDescription="Buy Meal"
-                android:text="Meal"
-                android:textAppearance="@style/TextAppearance.AppCompat.Button"
-                android:textSize="24sp" />
-
-            <TextView
-                android:id="@+id/mealText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:text="0 x $9"
-                android:textAlignment="textEnd"
-                android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
-
-            <TextView
-                android:id="@+id/mealTotal"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="$0"
                 android:textAlignment="textEnd"
                 android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
         </TableRow>

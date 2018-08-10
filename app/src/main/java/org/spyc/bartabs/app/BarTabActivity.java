@@ -6,8 +6,11 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 
 import org.spyc.bartabs.app.hal.Item;
@@ -16,6 +19,7 @@ import org.spyc.bartabs.app.hal.Transaction;
 import org.spyc.bartabs.app.hal.User;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +39,21 @@ public class BarTabActivity extends AppCompatActivity {
     private List<Transaction> mTransactions;
     private Map<ItemType, BarTabLine> tab;
 
+
+    private int mTableRows = 0;
+    private float mButtonTextSize = 24.0F;
+    private float mTextSize = 34.0F;
+    private boolean needToLoadTransactions = false;
+
+    private static class ViewHolder {
+        Button button;
+        TextView text;
+        TextView subTotal;
+    }
+
+    private ViewHolder[] mViewHolders =  new ViewHolder[ItemType.values().length];
+    private List<ItemType> defaultItems = Arrays.asList(ItemType.SODA, ItemType.JUICE, ItemType.BEER);
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,41 +62,7 @@ public class BarTabActivity extends AppCompatActivity {
         loadItems();
         TextView nameText = (TextView) findViewById(R.id.nameText);
         nameText.setText(mUser.getName() + " Bar Tab");
-        Button beerButton = (Button) findViewById(R.id.beerButton);
-        beerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startBuyActivity(mItems.get(ItemType.BEER));
-            }
-        });
-        Button sodaButton = (Button) findViewById(R.id.sodaButton);
-        sodaButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startBuyActivity(mItems.get(ItemType.SODA));
-            }
-        });
-        Button juiceButton = (Button) findViewById(R.id.juiceButton);
-        juiceButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startBuyActivity(mItems.get(ItemType.JUICE));
-            }
-        });
-        Button corkageButton = (Button) findViewById(R.id.corkageButton);
-        corkageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startBuyActivity(mItems.get(ItemType.CORKAGE));
-            }
-        });
-        Button mealButton = (Button) findViewById(R.id.mealButton);
-        mealButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startBuyActivity(mItems.get(ItemType.MEAL));
-            }
-        });
+
         Button payButton = (Button) findViewById(R.id.payButton);
         payButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -102,21 +87,80 @@ public class BarTabActivity extends AppCompatActivity {
             }
         });
 
+        Button moreButton = (Button) findViewById(R.id.moreButton);
+        moreButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SelectItemDialog moreDialog =new SelectItemDialog(BarTabActivity.this);
+                Bundle bundle = new Bundle();
+                bundle.putParcelableArray(RestClientService.ITEMS_RESULT_EXTRA, mItems.values().toArray(new Parcelable[]{}));
+                moreDialog.show();
+            }
+        });
 
+        mButtonTextSize = moreButton.getTextSize();
+        moreButton.setHeight((int)mButtonTextSize * 5);
+        doneButton.setHeight((int)mButtonTextSize * 3);
+        payButton.setHeight((int)mButtonTextSize * 3);
+        historyButton.setHeight((int)mButtonTextSize * 3);
+        mTextSize = nameText.getTextSize();
+        needToLoadTransactions = true;
     }
 
     @Override
     protected void onStart() {
-        loadTransactions();
         super.onStart();
     }
 
     @Override
     protected void onResume() {
-        //loadTransactions();
+        if (needToLoadTransactions) {
+            loadTransactions();
+        }
         super.onResume();
     }
 
+    private ViewHolder createViewHolder(final Item item, int count) {
+        ViewHolder vh = new ViewHolder();
+        TableLayout tl = (TableLayout)findViewById(R.id.tableLayout);
+        TableRow row = new TableRow(this);
+        row.setLayoutParams(new TableLayout.LayoutParams( TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
+        Button button = new Button(this);
+        button.setText(item.getType().toString());
+        button.setTextSize(TypedValue.COMPLEX_UNIT_PX, mButtonTextSize);
+        button.setLayoutParams(new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 2));
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startBuyActivity(item);
+            }
+        });
+        button.setHeight((int)mButtonTextSize * 3);
+        vh.button = button;
+        row.addView(button);
+        TextView text = new TextView(this);
+        text.setTextSize(TypedValue.COMPLEX_UNIT_PX, mTextSize);
+        text.setText(count + " x $" + item.getCost());
+        text.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_END);
+        text.setLayoutParams(new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 2));
+        vh.text = text;
+        row.addView(text);
+        TextView subTotal = new TextView(this);
+        subTotal.setText("$" + item.getCost()*count);
+        subTotal.setTextSize(TypedValue.COMPLEX_UNIT_PX, mTextSize);
+        subTotal.setLayoutParams(new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 1));
+        subTotal.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_END);
+        vh.subTotal = subTotal;
+        row.addView(subTotal);
+        updateViewHolder(vh, item, count);
+        tl.addView(row, mTableRows++);
+        return vh;
+    }
+
+    private void updateViewHolder(ViewHolder holder, Item item, int count) {
+        holder.text.setText(count + " x $" + item.getCost());
+        holder.subTotal.setText("$" + item.getCost()*count);
+    }
     private static class BarTabLine {
         int count;
         int total;
@@ -143,49 +187,56 @@ public class BarTabActivity extends AppCompatActivity {
         return tab;
     }
 
-    private int updateBarTabLine(Item item, Map<ItemType, BarTabLine> tab, TextView text, TextView total) {
-        BarTabLine line = tab.get(item.getType());
-        int unitCost = item.getCost();
-        int totalCost = 0;
-        String textString = "0 x $" + unitCost;
-        String totalString="$0";
-        if (line != null) {
-            textString = line.count + " x $" + unitCost;
-            totalString = "$" + line.total;
-            totalCost = line.total;
+    private int updateBarTabLine(ItemType type, Map<ItemType, BarTabLine> tab) {
+        BarTabLine line = tab.get(type);
+        if (line != null || defaultItems.contains(type)) {
+            if (line == null) {
+                line = new BarTabLine();
+                line.count = 0;
+                line.total = 0;
+            }
+            Item item = mItems.get(type);
+            int index = type.ordinal();
+            ViewHolder holder = mViewHolders[index];
+            if (holder == null) {
+                holder = createViewHolder(item, line.count);
+                mViewHolders[index] = holder;
+            }
+            else {
+                updateViewHolder(holder, item, line.count);
+            }
+            return line.total;
         }
-        text.setText(textString);
-        total.setText(totalString);
-        return totalCost;
+        else {
+            int index = type.ordinal();
+            ViewHolder holder = mViewHolders[index];
+            if (holder != null) {
+                line = new BarTabLine();
+                line.count = 0;
+                line.total = 0;
+                Item item = mItems.get(type);
+                updateViewHolder(holder, item, line.count);
+            }
+        }
+        return 0;
     }
 
     private void updateBarTab() {
         tab = calculateBarTab();
         int total = 0;
-        TextView countText = (TextView) findViewById(R.id.beerText);
-        TextView totalText = (TextView) findViewById(R.id.beerTotal);
-        total += updateBarTabLine(mItems.get(ItemType.BEER), tab, countText, totalText);
-        countText = (TextView) findViewById(R.id.sodaText);
-        totalText = (TextView) findViewById(R.id.sodaTotal);
-        total += updateBarTabLine(mItems.get(ItemType.SODA), tab, countText, totalText);
-        countText = (TextView) findViewById(R.id.juiceText);
-        totalText = (TextView) findViewById(R.id.juiceTotal);
-        total += updateBarTabLine(mItems.get(ItemType.JUICE), tab, countText, totalText);
-        countText = (TextView) findViewById(R.id.corkageText);
-        totalText = (TextView) findViewById(R.id.corkageTotal);
-        total += updateBarTabLine(mItems.get(ItemType.CORKAGE), tab, countText, totalText);
-        countText = (TextView) findViewById(R.id.mealText);
-        totalText = (TextView) findViewById(R.id.mealTotal);
-        total += updateBarTabLine(mItems.get(ItemType.MEAL), tab, countText, totalText);
+        for (ItemType type: ItemType.values()) {
+            total += updateBarTabLine(type, tab);
+        }
         TextView grandTotal = (TextView) findViewById(R.id.textTotal);
         grandTotal.setText("$" + total);
     }
 
-    private void startBuyActivity(Item item) {
+    public void startBuyActivity(Item item) {
         Intent in = new Intent(BarTabActivity.this, BuyActivity.class);
         in.putExtra(ITEM_EXTRA, item);
         in.putExtra(USER_EXTRA, mUser);
         startActivity(in);
+        needToLoadTransactions = true;
     }
 
     private void startPayActivity() {
@@ -218,6 +269,7 @@ public class BarTabActivity extends AppCompatActivity {
         in.putExtra(DONATION_AMOUNT_EXTRA, donationsAmount);
         in.putExtra(OTHER_AMOUNT_EXTRA, otherAmount);
         startActivity(in);
+        needToLoadTransactions = true;
     }
 
     private void startHistoryActivity() {
@@ -225,6 +277,7 @@ public class BarTabActivity extends AppCompatActivity {
         in.putExtra(USER_EXTRA, mUser);
         in.putExtra(TRANSACTIONS_EXTRA, mTransactions.toArray(new Transaction[mTransactions.size()]));
         startActivity(in);
+        needToLoadTransactions = true;
     }
 
     private void loadItems() {
@@ -246,26 +299,32 @@ public class BarTabActivity extends AppCompatActivity {
         startService(intent);
     }
 
+    public Map<ItemType, Item> makeItemMap(Parcelable[] items) {
+        Map<ItemType, Item> itemMap = new HashMap<ItemType, Item>();
+        for (Parcelable p : items) {
+            Item item = (Item) p;
+            itemMap.put(item.getType(), item);
+        }
+        return itemMap;
+    }
+
+    public Map<ItemType, Item> getItems() {
+        return mItems;
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == RestClientService.LOAD_ITEMS_REQUEST_CODE) {
-            switch (resultCode) {
-                case RestClientService.INVALID_URL_CODE:
-                    RestClientService.showAlertDialog(this, "Invalid service URL loading items.");
-                    break;
-                case RestClientService.ERROR_CODE:
-                    RestClientService.showAlertDialog(this, "Server error loading items.");
-                    break;
-                case RestClientService.RESULT_OK_CODE:
-                    Parcelable[] items = data.getParcelableArrayExtra(RestClientService.ITEMS_RESULT_EXTRA);
-                    Map<ItemType, Item> itemMap = new HashMap<ItemType,Item>();
-                    for (Parcelable p : items) {
-                        Item item = (Item) p;
-                        itemMap.put(item.getType(),item);
-                    }
-                    mItems = itemMap;
-                    break;
-            }
+        if (requestCode == RestClientService.LOAD_ITEMS_REQUEST_CODE) switch (resultCode) {
+            case RestClientService.INVALID_URL_CODE:
+                RestClientService.showAlertDialog(this, "Invalid service URL loading items.");
+                break;
+            case RestClientService.ERROR_CODE:
+                RestClientService.showAlertDialog(this, "Server error loading items.");
+                break;
+            case RestClientService.RESULT_OK_CODE:
+                Parcelable[] items = data.getParcelableArrayExtra(RestClientService.ITEMS_RESULT_EXTRA);
+                mItems = makeItemMap(items);
+                break;
         }
         else if (requestCode == RestClientService.LOAD_TRANSACTIONS_REQUEST_CODE) {
             switch (resultCode) {
@@ -284,6 +343,7 @@ public class BarTabActivity extends AppCompatActivity {
                     }
                     mTransactions = transactionList;
                     updateBarTab();
+                    needToLoadTransactions = false;
                     break;
             }
         }

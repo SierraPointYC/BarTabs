@@ -10,6 +10,16 @@
     <!-- The primary full-screen view. This can be replaced with whatever view
          is needed to present your content, e.g. VideoView, SurfaceView,
          TextureView, etc. -->
+
+    <!-- This FrameLayout insets its children based on system windows using
+         android:fitsSystemWindows. -->
+
+    <ImageView
+        android:id="@+id/imageView5"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:srcCompat="@drawable/bar2" />
+
     <TextView
         android:id="@+id/fullscreen_content"
         android:layout_width="match_parent"
@@ -17,17 +27,17 @@
         android:gravity="center"
         android:keepScreenOn="true"
         android:text="@string/idlescreen_content"
-        android:textColor="#33b5e5"
-        android:textSize="50sp"
+        android:textColor="@android:color/holo_blue_bright"
+        android:textSize="95sp"
         android:textStyle="bold" />
 
-    <!-- This FrameLayout insets its children based on system windows using
-         android:fitsSystemWindows. -->
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="150dp"
+        android:scaleX="2"
+        android:scaleY="2"
         app:srcCompat="@drawable/burgee7" />
 
     <FrameLayout
