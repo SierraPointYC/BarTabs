@@ -3,8 +3,10 @@ package org.spyc.bartabs.app;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Parcelable;
 import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.TypedValue;
 import android.view.View;
@@ -18,6 +20,7 @@ import org.spyc.bartabs.app.hal.ItemType;
 import org.spyc.bartabs.app.hal.Transaction;
 import org.spyc.bartabs.app.hal.User;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -38,11 +41,12 @@ public class BarTabActivity extends AppCompatActivity {
     private Map<ItemType, Item> mItems;
     private List<Transaction> mTransactions;
     private Map<ItemType, BarTabLine> tab;
-
+    private CountDownTimer mIdleTimer;
 
     private int mTableRows = 0;
     private float mButtonTextSize = 24.0F;
     private float mTextSize = 34.0F;
+    private float buttonHeightFactor = 2.5F;
     private boolean needToLoadTransactions = false;
 
     private static class ViewHolder {
@@ -58,12 +62,27 @@ public class BarTabActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mUser = getIntent().getParcelableExtra(USER_EXTRA);
-        setContentView(R.layout.activity_bar_tab);
-        loadItems();
-        TextView nameText = (TextView) findViewById(R.id.nameText);
-        nameText.setText(mUser.getName() + " Bar Tab");
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.hide();
+        }
 
-        Button payButton = (Button) findViewById(R.id.payButton);
+        setContentView(R.layout.activity_bar_tab);
+
+        View content = findViewById(R.id.bar_tab_content);
+        content.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
+                | View.SYSTEM_UI_FLAG_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+
+
+        loadItems();
+        TextView nameText = findViewById(R.id.nameText);
+        nameText.setText(MessageFormat.format("Bar Tab of {0}", mUser.getName()));
+
+        Button payButton = findViewById(R.id.payButton);
         payButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -71,7 +90,7 @@ public class BarTabActivity extends AppCompatActivity {
             }
         });
 
-        Button historyButton = (Button) findViewById(R.id.historyButton);
+        Button historyButton = findViewById(R.id.historyButton);
         historyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -79,7 +98,7 @@ public class BarTabActivity extends AppCompatActivity {
             }
         });
 
-        Button doneButton = (Button) findViewById(R.id.doneButton);
+        Button doneButton = findViewById(R.id.doneButton);
         doneButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -87,7 +106,7 @@ public class BarTabActivity extends AppCompatActivity {
             }
         });
 
-        Button moreButton = (Button) findViewById(R.id.moreButton);
+        Button moreButton = findViewById(R.id.moreButton);
         moreButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -99,12 +118,28 @@ public class BarTabActivity extends AppCompatActivity {
         });
 
         mButtonTextSize = moreButton.getTextSize();
-        moreButton.setHeight((int)mButtonTextSize * 5);
-        doneButton.setHeight((int)mButtonTextSize * 3);
-        payButton.setHeight((int)mButtonTextSize * 3);
-        historyButton.setHeight((int)mButtonTextSize * 3);
+        moreButton.setHeight((int)(mButtonTextSize * buttonHeightFactor));
+        doneButton.setHeight((int)(mButtonTextSize * buttonHeightFactor));
+        payButton.setHeight((int)(mButtonTextSize * buttonHeightFactor));
+        historyButton.setHeight((int)(mButtonTextSize * buttonHeightFactor));
         mTextSize = nameText.getTextSize();
         needToLoadTransactions = true;
+        mIdleTimer = new CountDownTimer(30000, 1000) {
+
+            public void onTick(long millisUntilFinished) {
+
+            }
+
+            public void onFinish() {
+                finish();
+            }
+        }.start();
+    }
+
+    @Override
+    public void onUserInteraction() {
+        mIdleTimer.cancel();
+        mIdleTimer.start();
     }
 
     @Override
@@ -122,7 +157,7 @@ public class BarTabActivity extends AppCompatActivity {
 
     private ViewHolder createViewHolder(final Item item, int count) {
         ViewHolder vh = new ViewHolder();
-        TableLayout tl = (TableLayout)findViewById(R.id.tableLayout);
+        TableLayout tl = findViewById(R.id.tableLayout);
         TableRow row = new TableRow(this);
         row.setLayoutParams(new TableLayout.LayoutParams( TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
         Button button = new Button(this);
@@ -135,18 +170,18 @@ public class BarTabActivity extends AppCompatActivity {
                 startBuyActivity(item);
             }
         });
-        button.setHeight((int)mButtonTextSize * 3);
+        button.setHeight((int)(mButtonTextSize * buttonHeightFactor));
         vh.button = button;
         row.addView(button);
         TextView text = new TextView(this);
         text.setTextSize(TypedValue.COMPLEX_UNIT_PX, mTextSize);
-        text.setText(count + " x $" + item.getCost());
+        text.setText(MessageFormat.format("{0} x ${1}", count, item.getCost()));
         text.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_END);
         text.setLayoutParams(new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 2));
         vh.text = text;
         row.addView(text);
         TextView subTotal = new TextView(this);
-        subTotal.setText("$" + item.getCost()*count);
+        subTotal.setText(MessageFormat.format("${0}", item.getCost() * count));
         subTotal.setTextSize(TypedValue.COMPLEX_UNIT_PX, mTextSize);
         subTotal.setLayoutParams(new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 1));
         subTotal.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_END);
@@ -158,8 +193,8 @@ public class BarTabActivity extends AppCompatActivity {
     }
 
     private void updateViewHolder(ViewHolder holder, Item item, int count) {
-        holder.text.setText(count + " x $" + item.getCost());
-        holder.subTotal.setText("$" + item.getCost()*count);
+        holder.text.setText(MessageFormat.format("{0} x ${1}", count, item.getCost()));
+        holder.subTotal.setText(MessageFormat.format("${0}", item.getCost() * count));
     }
     private static class BarTabLine {
         int count;
@@ -167,7 +202,7 @@ public class BarTabActivity extends AppCompatActivity {
     }
 
     private Map<ItemType, BarTabLine> calculateBarTab() {
-        Map<ItemType, BarTabLine> tab = new HashMap<ItemType, BarTabLine>();
+        Map<ItemType, BarTabLine> tab = new HashMap<>();
         for (Transaction t : mTransactions) {
             if (t.getStatus() != Transaction.Status.UNPAID) {
                 continue;
@@ -227,8 +262,8 @@ public class BarTabActivity extends AppCompatActivity {
         for (ItemType type: ItemType.values()) {
             total += updateBarTabLine(type, tab);
         }
-        TextView grandTotal = (TextView) findViewById(R.id.textTotal);
-        grandTotal.setText("$" + total);
+        TextView grandTotal = findViewById(R.id.textTotal);
+        grandTotal.setText(MessageFormat.format("${0}", total));
     }
 
     public void startBuyActivity(Item item) {
@@ -300,7 +335,7 @@ public class BarTabActivity extends AppCompatActivity {
     }
 
     public Map<ItemType, Item> makeItemMap(Parcelable[] items) {
-        Map<ItemType, Item> itemMap = new HashMap<ItemType, Item>();
+        Map<ItemType, Item> itemMap = new HashMap<>();
         for (Parcelable p : items) {
             Item item = (Item) p;
             itemMap.put(item.getType(), item);
@@ -336,7 +371,7 @@ public class BarTabActivity extends AppCompatActivity {
                     break;
                 case RestClientService.RESULT_OK_CODE:
                     Parcelable[] transactions = data.getParcelableArrayExtra(RestClientService.TRANSACTIONS_RESULT_EXTRA);
-                    List<Transaction> transactionList = new ArrayList<Transaction>();
+                    List<Transaction> transactionList = new ArrayList<>();
                     for (Parcelable p : transactions) {
                         Transaction transaction = (Transaction) p;
                         transactionList.add(transaction);

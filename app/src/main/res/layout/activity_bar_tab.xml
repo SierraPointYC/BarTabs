@@ -2,7 +2,7 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/container"
+    android:id="@+id/bar_tab_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".BarTabActivity">
@@ -60,6 +60,7 @@
                 android:textAlignment="textEnd"
                 android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
         </TableRow>
+
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -86,38 +87,52 @@
             android:layout_height="match_parent" />
     </TableLayout>
 
-    <Button
-        android:id="@+id/doneButton"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
-        android:layout_marginStart="16dp"
-        android:text="@string/doneButtonText"
-        android:textSize="24sp"
-        app:layout_constraintBaseline_toBaselineOf="@+id/payButton"
-        app:layout_constraintEnd_toStartOf="@+id/payButton"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/historyButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginStart="16dp"
-        android:text="History"
-        android:textSize="24sp"
-        app:layout_constraintBaseline_toBaselineOf="@+id/payButton"
+        android:layout_marginTop="32dp"
+        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/payButton" />
+        app:layout_constraintTop_toBottomOf="@+id/tableLayout">
 
-    <Button
-        android:id="@+id/payButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="`Pay"
-        android:textSize="24sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tableLayout" />
+        <Button
+            android:id="@+id/doneButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_weight="1"
+            android:text="@string/doneButtonText"
+            android:textSize="24sp"
+            app:layout_constraintBaseline_toBaselineOf="@+id/payButton"
+            app:layout_constraintEnd_toStartOf="@+id/payButton"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/payButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Pay"
+            android:textSize="24sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tableLayout" />
+
+        <Button
+            android:id="@+id/historyButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_weight="1"
+            android:text="History"
+            android:textSize="24sp"
+            app:layout_constraintBaseline_toBaselineOf="@+id/payButton"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/payButton" />
+
+    </LinearLayout>
+
 </android.support.constraint.ConstraintLayout>

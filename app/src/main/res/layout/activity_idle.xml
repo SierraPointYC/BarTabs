@@ -25,7 +25,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:keepScreenOn="true"
         android:text="@string/idlescreen_content"
         android:textColor="@android:color/holo_blue_bright"
         android:textSize="95sp"

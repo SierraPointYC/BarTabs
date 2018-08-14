@@ -17,7 +17,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.HttpStatusCodeException;
@@ -110,15 +109,15 @@ public class RestClientService extends IntentService {
                         break;
                     case SUBMIT_TRANSACTION_REQUEST_CODE:
                         Transaction transaction = intent.getParcelableExtra(TRANSACTION_EXTRA);
-                        success = submitTransaction(transaction, mRestTemplate, requestHeaders, result);
+                        success = submitTransaction(transaction, mRestTemplate, requestHeaders);
                         break;
                     case CANCEL_TRANSACTION_REQUEST_CODE:
                         Transaction transaction2 = intent.getParcelableExtra(TRANSACTION_EXTRA);
-                        success = cancelTransaction(transaction2, mRestTemplate, requestHeaders, result);
+                        success = cancelTransaction(transaction2, mRestTemplate, requestHeaders);
                         break;
                     case SUBMIT_PAYMENT_REQUEST_CODE:
                         Payment payment = intent.getParcelableExtra(TRANSACTION_EXTRA);
-                        success = submitPayment(payment, mRestTemplate, requestHeaders, result);
+                        success = submitPayment(payment, mRestTemplate, requestHeaders);
                         break;
                     default:
                         Log.i(TAG, "Invalid request code " + requestCode);
@@ -184,25 +183,25 @@ public class RestClientService extends IntentService {
     }
 
 
-    private boolean submitTransaction(Transaction transaction, RestTemplate restTemplate, HttpHeaders requestHeaders, Intent result) {
+    private boolean submitTransaction(Transaction transaction, RestTemplate restTemplate, HttpHeaders requestHeaders) {
         // Make the HTTP POST request
-        HttpEntity<Transaction> requestEntity = new HttpEntity<Transaction>(transaction, requestHeaders);
+        HttpEntity<Transaction> requestEntity = new HttpEntity<>(transaction, requestHeaders);
         ResponseEntity<Transaction> responseEntity = restTemplate.exchange(mServer + "transaction", HttpMethod.POST, requestEntity, Transaction.class);
         return responseEntity.getStatusCode()== HttpStatus.CREATED;
     }
 
-    private boolean submitPayment(Payment payment, RestTemplate restTemplate, HttpHeaders requestHeaders, Intent result) {
+    private boolean submitPayment(Payment payment, RestTemplate restTemplate, HttpHeaders requestHeaders) {
         // Make the HTTP POST request
-        HttpEntity<Payment> requestEntity = new HttpEntity<Payment>(payment, requestHeaders);
+        HttpEntity<Payment> requestEntity = new HttpEntity<>(payment, requestHeaders);
         ResponseEntity<Payment> responseEntity = restTemplate.exchange(mServer + "payment", HttpMethod.POST, requestEntity, Payment.class);
         return responseEntity.getStatusCode()== HttpStatus.CREATED;
     }
 
-    private boolean cancelTransaction(Transaction transaction, RestTemplate restTemplate, HttpHeaders requestHeaders, Intent result) {
+    private boolean cancelTransaction(Transaction transaction, RestTemplate restTemplate, HttpHeaders requestHeaders) {
         // Make the HTTP PATCH request
         transaction.setStatus(Transaction.Status.CANCELLED);
         transaction.setCloseDate(new Date());
-        HttpEntity<Transaction> requestEntity = new HttpEntity<Transaction>(transaction, requestHeaders);
+        HttpEntity<Transaction> requestEntity = new HttpEntity<>(transaction, requestHeaders);
         ResponseEntity<Transaction> responseEntity = restTemplate.exchange(transaction.get_links().self.href, HttpMethod.PATCH, requestEntity, Transaction.class);
         return responseEntity.getStatusCode()== HttpStatus.OK;
     }

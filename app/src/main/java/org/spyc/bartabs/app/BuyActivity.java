@@ -2,7 +2,6 @@ package org.spyc.bartabs.app;
 
 import android.app.PendingIntent;
 import android.content.Intent;
-import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -11,15 +10,11 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import org.spyc.bartabs.app.hal.Item;
-import org.spyc.bartabs.app.hal.ItemType;
 import org.spyc.bartabs.app.hal.Transaction;
 import org.spyc.bartabs.app.hal.User;
 
-import java.util.ArrayList;
+import java.text.MessageFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class BuyActivity extends AppCompatActivity {
 
@@ -35,7 +30,7 @@ public class BuyActivity extends AppCompatActivity {
 
         updateBuyText();
 
-        ImageButton upButton = (ImageButton) findViewById(R.id.upArrowButton);
+        ImageButton upButton = findViewById(R.id.upArrowButton);
         upButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -44,7 +39,7 @@ public class BuyActivity extends AppCompatActivity {
             }
         });
 
-        ImageButton downButton = (ImageButton) findViewById(R.id.downArrowButton);
+        ImageButton downButton = findViewById(R.id.downArrowButton);
         downButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -52,7 +47,7 @@ public class BuyActivity extends AppCompatActivity {
                 updateBuyText();
             }
     });
-        Button buyButton = (Button) findViewById(R.id.buyButton);
+        Button buyButton = findViewById(R.id.buyButton);
         buyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -60,7 +55,7 @@ public class BuyActivity extends AppCompatActivity {
             }
         });
 
-        Button doneButton = (Button) findViewById(R.id.cancelBuyButton);
+        Button doneButton = findViewById(R.id.cancelBuyButton);
         doneButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -70,12 +65,12 @@ public class BuyActivity extends AppCompatActivity {
     }
 
     private void updateBuyText() {
-        TextView nameText = (TextView) findViewById(R.id.buyText);
+        TextView nameText = findViewById(R.id.buyText);
         String itemString = mItem.getType().toString().toLowerCase();
         if (mCount > 1) {
             itemString = itemString + "s";
         }
-        nameText.setText("Add " + mCount + " " +  itemString + " for $" + mCount * mItem.getCost());
+        nameText.setText(MessageFormat.format("Add {0} {1} for ${2}", mCount, itemString, mCount * mItem.getCost()));
 
     }
 

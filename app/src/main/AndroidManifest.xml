@@ -53,9 +53,6 @@
             android:label="Payment"
             android:parentActivityName=".BarTabActivity"/>
         <activity
-            android:name=".OpenTabActivity"
-            android:label="@string/title_activity_open_tab" />
-        <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
             android:parentActivityName=".LoginActivity">

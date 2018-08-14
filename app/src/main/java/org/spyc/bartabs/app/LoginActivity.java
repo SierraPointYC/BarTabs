@@ -2,11 +2,9 @@ package org.spyc.bartabs.app;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.app.AlertDialog;
 import android.app.PendingIntent;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
@@ -37,7 +35,6 @@ import org.spyc.bartabs.app.hal.User;
  */
 public class LoginActivity extends AppCompatActivity {
 
-    public static final int GET_PIN_REQUEST_CODE = 1001;
     public static final String USER_TAG_EXTRA = "user_tag";
 
     /**
@@ -62,9 +59,9 @@ public class LoginActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_login);
         // Set up the login form.
-        mMemberNameView = (AutoCompleteTextView) findViewById(R.id.member_name);
+        mMemberNameView = findViewById(R.id.member_name);
 
-        mMemberPinView = (EditText) findViewById(R.id.member_pin);
+        mMemberPinView = findViewById(R.id.member_pin);
         mMemberPinView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
@@ -76,7 +73,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        Button mSignInButton = (Button) findViewById(R.id.sign_in_button);
+        Button mSignInButton = findViewById(R.id.sign_in_button);
         mSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -97,13 +94,7 @@ public class LoginActivity extends AppCompatActivity {
         startService(intent);
     }
 
-    private void startGetPinActivity() {
-        Intent in = new Intent(LoginActivity.this, OpenTabActivity.class);
-        startActivityForResult(in, GET_PIN_REQUEST_CODE);
-    }
-
-
-
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == RestClientService.LOAD_USERS_REQUEST_CODE) {
@@ -116,13 +107,20 @@ public class LoginActivity extends AppCompatActivity {
                     break;
                 case RestClientService.RESULT_OK_CODE:
                     Parcelable[] users = data.getParcelableArrayExtra(RestClientService.USERS_RESULT_EXTRA);
-                    Map<String, User> userMap = new HashMap<String, User>();
+                    Map<String, User> userMap = new HashMap<>();
+                    boolean tagInvalid = true;
                     for (Parcelable p : users) {
-                        User user = (User)p;
+                        User user = (User) p;
                         if (mTag != null && mTag.equals(user.getTag())) {
+                            tagInvalid = false;
                             startBarTabActivity(user);
                         }
                         userMap.put(user.getName(), user);
+                    }
+                    if (tagInvalid && mTag != null) {
+                        TextView v = findViewById(R.id.unknown_tag_view);
+                        v.setText("Unknown Tag, UUID=" + mTag);
+                        v.setVisibility(View.VISIBLE);
                     }
                     mUserMap = userMap;
                     addNamesToAutoComplete(userMap.keySet());
@@ -201,10 +199,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private boolean isNameValid(String name) {
-        if (mUserMap != null) {
-            return mUserMap.containsKey(name);
-        }
-        return false;
+        return mUserMap != null && mUserMap.containsKey(name);
     }
 
     private boolean isPasswordValid(String password) {
@@ -214,6 +209,7 @@ public class LoginActivity extends AppCompatActivity {
     /**
      * Shows the progress UI and hides the login form.
      */
+    @SuppressLint("ObsoleteSdkInt")
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     private void showProgress(final boolean show) {
         // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
@@ -250,7 +246,7 @@ public class LoginActivity extends AppCompatActivity {
     private void addNamesToAutoComplete(Set<String> userNames) {
         //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
         ArrayAdapter<String> adapter =
-                new ArrayAdapter<String>(LoginActivity.this,
+                new ArrayAdapter<>(LoginActivity.this,
                         //android.R.layout.simple_dropdown_item_1line,
                         android.R.layout.simple_selectable_list_item,
                         userNames.toArray(new String[]{}));
@@ -289,10 +285,7 @@ public class LoginActivity extends AppCompatActivity {
 
             String pin = mUserMap.get(mName).getPin();
 
-            if (!mPassword.equals(pin)) {
-                return false;
-            }
-            return true;
+            return mPassword.equals(pin);
         }
 
         @Override

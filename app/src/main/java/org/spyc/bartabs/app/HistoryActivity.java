@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.app.Activity;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -16,28 +17,17 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.spyc.bartabs.app.hal.Item;
-import org.spyc.bartabs.app.hal.ItemType;
 import org.spyc.bartabs.app.hal.Transaction;
-import org.spyc.bartabs.app.hal.User;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class HistoryActivity extends Activity {
 
-    private User mUser;
     private Transaction[] mTransactions;
-    private RecyclerView mRecyclerView;
-    private LinearLayoutManager mLayoutManager;
     TransactionAdapter mAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_history);
-        mUser = getIntent().getParcelableExtra(BarTabActivity.USER_EXTRA);
         Parcelable[] array = getIntent().getParcelableArrayExtra(BarTabActivity.TRANSACTIONS_EXTRA);
         mTransactions = new Transaction[array.length];
         for (int i = 0; i < array.length; i++) {
@@ -45,21 +35,21 @@ public class HistoryActivity extends Activity {
                 mTransactions[i] = (Transaction) array[i];
             }
         }
-        mRecyclerView = (RecyclerView) findViewById(R.id.historyListView);
+        RecyclerView recyclerView = findViewById(R.id.historyListView);
 
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
         //mRecyclerView.setHasFixedSize(true);
 
         // use a linear layout manager
-        mLayoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(mLayoutManager);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
 
         // specify an adapter (see also next example)
-        mAdapter = new TransactionAdapter(mTransactions, mRecyclerView);
-        mRecyclerView.setAdapter(mAdapter);
+        mAdapter = new TransactionAdapter(mTransactions, recyclerView);
+        recyclerView.setAdapter(mAdapter);
 
-        Button backButton = (Button) findViewById(R.id.historyBackButton);
+        Button backButton = findViewById(R.id.historyBackButton);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -67,7 +57,7 @@ public class HistoryActivity extends Activity {
             }
         });
 
-        Button revertButton = (Button) findViewById(R.id.historyRevertButton);
+        Button revertButton = findViewById(R.id.historyRevertButton);
         revertButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -119,34 +109,33 @@ public class HistoryActivity extends Activity {
         // Provide a reference to the views for each data item
         // Complex data items may need more than one view per item, and
         // you provide access to all the views for a data item in a view holder
-        public static class ViewHolder extends RecyclerView.ViewHolder {
+        static class ViewHolder extends RecyclerView.ViewHolder {
             // each data item is just a string in this case
-            public View mParentView;
-            public LinearLayout mLayout;
-            public TextView mView;
-            public ViewHolder(LinearLayout v, View parent) {
+            private LinearLayout mLayout;
+            private TextView mView;
+            ViewHolder(LinearLayout v) {
                 super(v);
                 mLayout = v;
-                mParentView = parent;
                 mView = mLayout.findViewById(R.id.history_line_text);
                 mLayout.setClickable(true);
             }
         }
 
         // Provide a suitable constructor (depends on the kind of dataset)
-        public TransactionAdapter(Transaction[] myDataset, RecyclerView recyclerView) {
+        TransactionAdapter(Transaction[] myDataset, RecyclerView recyclerView) {
             mDataset = myDataset;
             mRecyclerView = recyclerView;
         }
 
         // Create new views (invoked by the layout manager)
+        @NonNull
         @Override
-        public TransactionAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
+        public TransactionAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                                                                 int viewType) {
             // create a new view
             LinearLayout v = (LinearLayout) LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.layout_history_line, parent, false);
-            ViewHolder vh = new ViewHolder(v, parent);
+            ViewHolder vh = new ViewHolder(v);
             // Set a listener for this entire view
             v.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -168,7 +157,7 @@ public class HistoryActivity extends Activity {
 
         // Replace the contents of a view (invoked by the layout manager)
         @Override
-        public void onBindViewHolder(ViewHolder holder, int position) {
+        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             // - get element from your dataset at this position
             // - replace the contents of the view with that element
             holder.mView.setText(mDataset[position].toString());
@@ -180,7 +169,7 @@ public class HistoryActivity extends Activity {
             return mDataset.length;
         }
 
-        public int getSelectedPosition() {
+        private int getSelectedPosition() {
             return mSelectedPosition;
         }
     }
