@@ -28,7 +28,7 @@ public class Transaction implements Parcelable {
     }
 
     public class TransactionLinks extends Links {
-        Link user;
+        public Link user;
     }
 
     public enum Status {

@@ -374,6 +374,7 @@ public class BarTabActivity extends AppCompatActivity {
                     List<Transaction> transactionList = new ArrayList<>();
                     for (Parcelable p : transactions) {
                         Transaction transaction = (Transaction) p;
+                        transaction.setUser(mUser.get_links().self.href);
                         transactionList.add(transaction);
                     }
                     mTransactions = transactionList;

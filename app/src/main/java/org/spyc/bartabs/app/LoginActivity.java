@@ -18,6 +18,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -55,13 +56,26 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         mTag = getIntent().getStringExtra(USER_TAG_EXTRA);
 
-        populateAutoComplete();
-
         setContentView(R.layout.activity_login);
         // Set up the login form.
         mMemberNameView = findViewById(R.id.member_name);
-
         mMemberPinView = findViewById(R.id.member_pin);
+        mMemberNameView.setOnDismissListener(new AutoCompleteTextView.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                mMemberPinView.requestFocus();
+            }
+        });
+        mMemberNameView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
+                if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
+                    mMemberPinView.requestFocus();
+                    return true;
+                }
+                return false;
+            }
+        });
         mMemberPinView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
@@ -92,6 +106,12 @@ public class LoginActivity extends AppCompatActivity {
         intent.putExtra(RestClientService.REQUEST_CODE_EXTRA, RestClientService.LOAD_USERS_REQUEST_CODE);
         intent.putExtra(RestClientService.PENDING_RESULT_EXTRA, pendingResult);
         startService(intent);
+    }
+
+    @Override
+    protected void onStart() {
+        populateAutoComplete();
+        super.onStart();
     }
 
     @SuppressLint("SetTextI18n")
