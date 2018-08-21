@@ -124,7 +124,7 @@ public class BarTabActivity extends AppCompatActivity {
         historyButton.setHeight((int)(mButtonTextSize * buttonHeightFactor));
         mTextSize = nameText.getTextSize();
         needToLoadTransactions = true;
-        mIdleTimer = new CountDownTimer(30000, 1000) {
+        mIdleTimer = new CountDownTimer(180000, 1000) {
 
             public void onTick(long millisUntilFinished) {
 
@@ -148,7 +148,14 @@ public class BarTabActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onPause() {
+        mIdleTimer.cancel();
+        super.onPause();
+    }
+
+    @Override
     protected void onResume() {
+        mIdleTimer.start();
         if (needToLoadTransactions) {
             loadTransactions();
         }
